@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
 # Copy only the requirements file first (this caches the installation step to save time on future builds)
 COPY requirements.txt .
 
-# Install the Python dependencies
+# Install the Python dependencies (upgrade pip and setuptools first to fix wheel build errors)
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container
