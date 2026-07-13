@@ -1,0 +1,28 @@
+# ==========================================
+# Agentic Health Checker - Git Ignore Policy
+# ==========================================
+
+# 1. Security (NEVER UPLOAD KEYS)
+.env
+
+# 2. Virtual Environments (Too large, machine-specific)
+.venv/
+venv/
+env/
+
+# 3. Python Cache (Clutter)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 4. Local Databases (Evaluators will generate their own)
+chroma_db/
+
+# 5. IDE & OS Folders (Clutter)
+.vscode/
+.idea/
+.DS_Store
+
+project_file_graph.md
+process_matrix_dataset.py

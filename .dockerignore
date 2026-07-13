@@ -1,0 +1,21 @@
+# Security
+.env
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local Databases (We will map this via a volume later)
+chroma_db/
+
+# Git and OS files
+.git/
+.vscode/
+.DS_Store

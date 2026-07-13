@@ -1,0 +1,406 @@
+import json
+import os
+
+diseases = [
+    {
+        "id": "icmr_dengue_2026",
+        "source": "ICMR Vector-Borne Protocols",
+        "condition": "Dengue Fever",
+        "urgency": "HIGH",
+        "indicators": ["high fever", "severe joint pain", "eyeball pain", "skin rash"],
+        "home_care": "Complete physical rest, aggressive oral rehydration (ORS, coconut water), and paracetamol for temperature control. Avoid NSAIDs like ibuprofen.",
+        "hospital_trigger": "Platelet count dropping below 100,000/µL, persistent vomiting, mucosal bleeding, or severe abdominal pain."
+    },
+    {
+        "id": "who_typhoid_2025",
+        "source": "WHO Institutional Guidelines",
+        "condition": "Typhoid Fever",
+        "urgency": "MEDIUM_TO_HIGH",
+        "indicators": ["sustained fever", "stomach pain", "headache", "diarrhea", "lethargy"],
+        "home_care": "Easily digestible warm semi-solids, strictly boiled or filtered drinking water, and continuous hydration monitoring.",
+        "hospital_trigger": "Persistent high body temperature failing to drop after 48 hours of antipyretic administration."
+    },
+    {
+        "id": "who_icd11_strep_throat",
+        "source": "WHO IMCI / ICD-11 Guidelines",
+        "condition": "Streptococcal Pharyngitis (Strep Throat)",
+        "urgency": "MEDIUM",
+        "indicators": ["sore throat", "high fever", "spots on tonsils", "swollen lymph nodes"],
+        "home_care": "Standard treatment includes a full course of antibiotics as prescribed by a physician. Drink warm liquids and use throat lozenges for symptom relief.",
+        "hospital_trigger": "Difficulty breathing, inability to swallow liquids, or fever exceeding 104°F (40°C)."
+    },
+    {
+        "id": "nvbdcp_malaria",
+        "source": "NVBDCP Guidelines India",
+        "condition": "Malaria",
+        "urgency": "HIGH",
+        "indicators": ["fever with chills", "sweating", "headache", "nausea", "muscle pain"],
+        "home_care": "Immediate blood test required. Start antimalarial treatment only after confirmation. Keep hydrated.",
+        "hospital_trigger": "Altered consciousness, convulsions, extreme weakness, or jaundice."
+    },
+    {
+        "id": "icmr_chikungunya",
+        "source": "ICMR Guidelines",
+        "condition": "Chikungunya",
+        "urgency": "MEDIUM",
+        "indicators": ["sudden fever", "debilitating joint pain", "muscle pain", "headache", "fatigue", "rash"],
+        "home_care": "Rest, plenty of fluids, paracetamol for fever and pain. Avoid aspirin and other NSAIDs until dengue is ruled out.",
+        "hospital_trigger": "Severe dehydration, unmanageable pain, or unusual bleeding."
+    },
+    {
+        "id": "mohfw_cholera",
+        "source": "MoHFW Guidelines",
+        "condition": "Cholera",
+        "urgency": "HIGH",
+        "indicators": ["profuse watery diarrhea", "vomiting", "leg cramps", "rapid dehydration"],
+        "home_care": "Immediate and aggressive oral rehydration with ORS. Continue breastfeeding for infants.",
+        "hospital_trigger": "Severe dehydration, lethargy, sunken eyes, lack of urine, or inability to drink."
+    },
+    {
+        "id": "who_tb",
+        "source": "WHO TB Guidelines",
+        "condition": "Tuberculosis (TB)",
+        "urgency": "HIGH",
+        "indicators": ["persistent cough", "chest pain", "coughing up blood", "fatigue", "weight loss", "night sweats", "fever"],
+        "home_care": "Isolate from family members (especially children). Ensure good ventilation. Strict adherence to DOTS (Directly Observed Treatment, Short-course).",
+        "hospital_trigger": "Massive coughing up of blood, severe breathlessness, or severe chest pain."
+    },
+    {
+        "id": "mohfw_covid19",
+        "source": "MoHFW India COVID-19 Protocol",
+        "condition": "COVID-19",
+        "urgency": "MEDIUM_TO_HIGH",
+        "indicators": ["fever", "dry cough", "loss of taste or smell", "fatigue", "difficulty breathing"],
+        "home_care": "Home isolation, monitor oxygen saturation with a pulse oximeter, stay hydrated, paracetamol for fever.",
+        "hospital_trigger": "Oxygen saturation (SpO2) falling below 93% on room air, severe difficulty breathing, or chest pain."
+    },
+    {
+        "id": "icmr_hepa",
+        "source": "ICMR Guidelines",
+        "condition": "Hepatitis A",
+        "urgency": "MEDIUM",
+        "indicators": ["jaundice", "yellow eyes", "dark urine", "extreme fatigue", "nausea", "vomiting", "abdominal pain"],
+        "home_care": "Adequate rest, balanced diet, avoid alcohol completely, stay hydrated.",
+        "hospital_trigger": "Severe vomiting, confusion, signs of liver failure, or prolonged illness."
+    },
+    {
+        "id": "who_amoebiasis",
+        "source": "WHO Intestinal Parasites Guidelines",
+        "condition": "Amoebic Dysentery",
+        "urgency": "MEDIUM",
+        "indicators": ["loose stools", "stools with blood and mucus", "stomach cramps", "fever"],
+        "home_care": "Maintain hydration with ORS and safe drinking water. Avoid dairy products temporarily.",
+        "hospital_trigger": "Severe dehydration, high persistent fever, or massive bleeding in stool."
+    },
+    {
+        "id": "ida_type2diabetes",
+        "source": "Indian Diabetes Association",
+        "condition": "Type 2 Diabetes",
+        "urgency": "LOW_TO_MEDIUM",
+        "indicators": ["increased thirst", "frequent urination", "increased hunger", "unintended weight loss", "fatigue", "blurred vision"],
+        "home_care": "Regular blood sugar monitoring, balanced diet, daily exercise, adhere to prescribed medication.",
+        "hospital_trigger": "Blood sugar > 300 mg/dL, ketones in urine, confusion, extreme drowsiness, or loss of consciousness."
+    },
+    {
+        "id": "icmr_hypertension",
+        "source": "ICMR Hypertension Guidelines",
+        "condition": "Hypertension (High Blood Pressure)",
+        "urgency": "LOW_TO_HIGH",
+        "indicators": ["headache", "shortness of breath", "nosebleeds", "dizziness"],
+        "home_care": "Reduce salt intake, exercise regularly, manage stress, take prescribed antihypertensive drugs.",
+        "hospital_trigger": "Blood pressure > 180/120 mmHg, severe chest pain, severe headache, confusion, or vision changes."
+    },
+    {
+        "id": "who_anemia",
+        "source": "WHO Nutritional Guidelines",
+        "condition": "Iron Deficiency Anemia",
+        "urgency": "LOW",
+        "indicators": ["fatigue", "weakness", "pale skin", "chest pain", "fast heartbeat", "shortness of breath", "cold hands and feet"],
+        "home_care": "Consume iron-rich foods (spinach, jaggery, meat), take iron supplements as prescribed, consume Vitamin C for absorption.",
+        "hospital_trigger": "Fainting, extremely rapid heart rate, or severe shortness of breath."
+    },
+    {
+        "id": "api_gerd",
+        "source": "Association of Physicians of India",
+        "condition": "GERD (Acid Reflux)",
+        "urgency": "LOW",
+        "indicators": ["heartburn", "chest pain", "difficulty swallowing", "regurgitation of food or sour liquid"],
+        "home_care": "Avoid spicy and oily foods, eat smaller meals, avoid lying down immediately after eating, elevate head while sleeping.",
+        "hospital_trigger": "Severe chest pain (to rule out heart attack), black/tarry stools, or vomiting blood."
+    },
+    {
+        "id": "who_ringworm",
+        "source": "WHO Dermatological Guidelines",
+        "condition": "Ringworm (Tinea Corporis)",
+        "urgency": "LOW",
+        "indicators": ["red scaly ring-shaped patch", "itching", "overlapping rings"],
+        "home_care": "Apply over-the-counter antifungal creams. Keep the affected area clean and dry. Avoid sharing personal items.",
+        "hospital_trigger": "Infection spreads extensively, doesn't improve with OTC treatments after 2 weeks, or signs of bacterial infection (pus)."
+    },
+    {
+        "id": "icmr_scabies",
+        "source": "ICMR Skin Infections Protocols",
+        "condition": "Scabies",
+        "urgency": "LOW",
+        "indicators": ["intense itching worse at night", "thin irregular burrow tracks", "pimples or rash"],
+        "home_care": "Apply prescribed scabicide lotion over the entire body from neck down. Wash all clothes and bedding in hot water.",
+        "hospital_trigger": "Severe secondary skin infection (crusting, pus) requiring antibiotics."
+    },
+    {
+        "id": "aiims_conjunctivitis",
+        "source": "AIIMS Ophthalmology Guidelines",
+        "condition": "Conjunctivitis (Pink Eye)",
+        "urgency": "LOW",
+        "indicators": ["redness in eye", "itching", "gritty feeling", "discharge that forms a crust"],
+        "home_care": "Apply cold compresses, use artificial tears, wash hands frequently, avoid touching eyes.",
+        "hospital_trigger": "Severe eye pain, blurred vision, intense sensitivity to light, or symptoms persisting over a week."
+    },
+    {
+        "id": "mohfw_uti",
+        "source": "MoHFW Guidelines",
+        "condition": "Urinary Tract Infection (UTI)",
+        "urgency": "MEDIUM",
+        "indicators": ["strong persistent urge to urinate", "burning sensation when urinating", "passing frequent small amounts of urine", "cloudy urine", "pelvic pain"],
+        "home_care": "Drink plenty of water to flush bacteria. Avoid caffeine and alcohol. Take prescribed antibiotics.",
+        "hospital_trigger": "High fever, chills, severe back pain, or nausea and vomiting (signs of kidney infection)."
+    },
+    {
+        "id": "who_gastroenteritis",
+        "source": "WHO Guidelines",
+        "condition": "Gastroenteritis (Stomach Flu)",
+        "urgency": "MEDIUM",
+        "indicators": ["watery diarrhea", "abdominal cramps", "nausea", "vomiting", "low-grade fever"],
+        "home_care": "Rest your stomach, suck on ice chips, drink clear liquids/ORS in small sips. Avoid solid food initially.",
+        "hospital_trigger": "Inability to keep liquids down for 24 hours, vomiting blood, severe dehydration, or high fever."
+    },
+    {
+        "id": "mohfw_kalaazar",
+        "source": "MoHFW Kala-Azar Protocol",
+        "condition": "Kala-azar (Visceral Leishmaniasis)",
+        "urgency": "HIGH",
+        "indicators": ["prolonged fever", "weight loss", "enlarged spleen", "enlarged liver", "anemia", "darkening of skin"],
+        "home_care": "Requires immediate medical diagnosis and supervised treatment. Ensure good nutrition and hygiene.",
+        "hospital_trigger": "Severe anemia, bleeding, or secondary infections."
+    },
+    {
+        "id": "nvbdcp_je",
+        "source": "NVBDCP Guidelines",
+        "condition": "Japanese Encephalitis",
+        "urgency": "HIGH",
+        "indicators": ["sudden onset of high fever", "headache", "stiffness of neck", "disorientation", "coma", "seizures", "spastic paralysis"],
+        "home_care": "Medical emergency, immediate hospitalization required. Provide supportive care while awaiting transport.",
+        "hospital_trigger": "Any symptoms of neurological involvement such as seizures or altered mental state."
+    },
+    {
+        "id": "icmr_asthma",
+        "source": "ICMR Respiratory Guidelines",
+        "condition": "Asthma",
+        "urgency": "MEDIUM_TO_HIGH",
+        "indicators": ["shortness of breath", "chest tightness", "wheezing", "coughing attacks"],
+        "home_care": "Use prescribed inhaler (bronchodilator). Identify and avoid triggers (dust, smoke).",
+        "hospital_trigger": "Severe breathlessness not relieved by inhaler, bluish lips or face, or inability to speak full sentences."
+    },
+    {
+        "id": "who_pneumonia",
+        "source": "WHO Respiratory Guidelines",
+        "condition": "Pneumonia",
+        "urgency": "HIGH",
+        "indicators": ["cough with phlegm or pus", "fever", "chills", "difficulty breathing", "chest pain when breathing"],
+        "home_care": "Take prescribed antibiotics/antivirals. Get plenty of rest, drink warm fluids, use a humidifier.",
+        "hospital_trigger": "Difficulty breathing, chest pain, bluish tint to lips, or confusion (especially in older adults)."
+    },
+    {
+        "id": "mohfw_rabies",
+        "source": "MoHFW Rabies Guidelines",
+        "condition": "Rabies (Post-exposure)",
+        "urgency": "CRITICAL",
+        "indicators": ["animal bite", "scratch by stray animal", "fever", "headache", "excessive salivation", "muscle spasms", "confusion"],
+        "home_care": "Immediately wash the wound with soap and water for 15 minutes. Seek emergency medical care for PEP (Post-Exposure Prophylaxis) vaccination immediately.",
+        "hospital_trigger": "Any animal bite requires immediate medical attention. Do not wait for symptoms."
+    },
+    {
+        "id": "who_leprosy",
+        "source": "WHO Leprosy Guidelines",
+        "condition": "Leprosy (Hansen's Disease)",
+        "urgency": "MEDIUM",
+        "indicators": ["light colored skin patches", "reduced sensation in patches", "muscle weakness", "numbness in hands or feet"],
+        "home_care": "Strict adherence to Multi-Drug Therapy (MDT) provided by health centers. Prevent injuries to numb areas.",
+        "hospital_trigger": "Severe nerve pain, sudden weakness in hands/feet, or severe inflammatory reactions."
+    },
+    {
+        "id": "icmr_fluorosis",
+        "source": "ICMR Guidelines",
+        "condition": "Fluorosis",
+        "urgency": "LOW",
+        "indicators": ["discoloration of teeth", "pitting of teeth", "joint pain", "stiffness", "bone deformities"],
+        "home_care": "Switch to safe drinking water with permissible fluoride limits. Diet rich in calcium, Vitamin C, and antioxidants.",
+        "hospital_trigger": "Severe bone deformities or inability to walk/perform daily tasks."
+    },
+    {
+        "id": "api_hypothyroidism",
+        "source": "Association of Physicians of India",
+        "condition": "Hypothyroidism",
+        "urgency": "LOW",
+        "indicators": ["fatigue", "increased sensitivity to cold", "constipation", "dry skin", "weight gain", "puffy face"],
+        "home_care": "Take prescribed synthetic thyroid hormone daily on an empty stomach. Routine blood tests for TSH levels.",
+        "hospital_trigger": "Myxedema coma symptoms: intense cold intolerance, severe drowsiness, profound lethargy, or unconsciousness."
+    },
+    {
+        "id": "mohfw_filariasis",
+        "source": "MoHFW Lymphatic Filariasis Protocol",
+        "condition": "Lymphatic Filariasis (Elephantiasis)",
+        "urgency": "MEDIUM",
+        "indicators": ["swelling of legs", "swelling of arms", "thickening of skin", "fever", "pain in affected areas"],
+        "home_care": "Wash swollen areas daily with soap and water. Elevate the affected limb. Exercise the limb to promote fluid movement.",
+        "hospital_trigger": "Severe acute attacks with high fever, intense pain, or secondary bacterial infection in the swollen limb."
+    },
+    {
+        "id": "icmr_leptospirosis",
+        "source": "ICMR Guidelines",
+        "condition": "Leptospirosis",
+        "urgency": "HIGH",
+        "indicators": ["high fever", "headache", "chills", "muscle aches", "vomiting", "jaundice", "red eyes", "abdominal pain"],
+        "home_care": "Requires prompt antibiotic treatment. Rest and maintain hydration.",
+        "hospital_trigger": "Jaundice (yellowing of skin/eyes), kidney failure (decreased urine), or signs of bleeding."
+    },
+    {
+        "id": "who_measles",
+        "source": "WHO Immunization Guidelines",
+        "condition": "Measles",
+        "urgency": "HIGH",
+        "indicators": ["high fever", "cough", "runny nose", "red watery eyes", "Koplik spots inside mouth", "full body rash"],
+        "home_care": "Isolate the patient. Ensure adequate nutrition and hydration. Vitamin A supplementation is recommended.",
+        "hospital_trigger": "Pneumonia (fast breathing), severe diarrhea, or encephalitis (seizures/confusion)."
+    },
+    {
+        "id": "mohfw_diphtheria",
+        "source": "MoHFW Guidelines",
+        "condition": "Diphtheria",
+        "urgency": "CRITICAL",
+        "indicators": ["thick grey coating in throat", "sore throat", "swollen glands in neck", "difficulty breathing", "fever"],
+        "home_care": "Immediate medical intervention required. Do not attempt home treatment. Patient needs isolation and antitoxin.",
+        "hospital_trigger": "Any suspected case must be hospitalized immediately due to airway obstruction risks."
+    },
+    {
+        "id": "icmr_scrubtyphus",
+        "source": "ICMR Rickettsial Protocol",
+        "condition": "Scrub Typhus",
+        "urgency": "HIGH",
+        "indicators": ["fever", "chills", "headache", "body aches", "dark scab-like region at chigger bite site (eschar)", "mental changes"],
+        "home_care": "Requires specific antibiotics (like doxycycline). Seek medical diagnosis promptly.",
+        "hospital_trigger": "Difficulty breathing, altered mental status, or organ failure."
+    },
+    {
+        "id": "who_tetanus",
+        "source": "WHO Tetanus Guidelines",
+        "condition": "Tetanus",
+        "urgency": "CRITICAL",
+        "indicators": ["jaw cramping (lockjaw)", "muscle spasms", "painful muscle stiffness", "trouble swallowing", "seizures", "fever"],
+        "home_care": "Medical emergency. No home treatment. Requires immediate hospitalization, tetanus immune globulin, and muscle relaxants.",
+        "hospital_trigger": "Any suspicion of tetanus requires emergency room care."
+    },
+    {
+        "id": "api_pcos",
+        "source": "API Guidelines",
+        "condition": "PCOS (Polycystic Ovary Syndrome)",
+        "urgency": "LOW",
+        "indicators": ["irregular periods", "excess facial/body hair", "severe acne", "weight gain", "thinning hair"],
+        "home_care": "Lifestyle modifications including weight loss, healthy diet, and regular exercise. Medications as prescribed for symptoms.",
+        "hospital_trigger": "Severe pelvic pain or heavy prolonged vaginal bleeding."
+    },
+    {
+        "id": "who_migraine",
+        "source": "WHO Neurological Guidelines",
+        "condition": "Migraine",
+        "urgency": "LOW_TO_MEDIUM",
+        "indicators": ["severe throbbing pain on one side of head", "nausea", "vomiting", "sensitivity to light and sound", "auras"],
+        "home_care": "Rest in a quiet, dark room. Take prescribed triptans or OTC pain relievers at the onset. Apply cold compress.",
+        "hospital_trigger": "An unusually severe headache ('worst headache of life'), headache with fever, stiff neck, or neurological symptoms like paralysis."
+    },
+    {
+        "id": "icmr_osteoarthritis",
+        "source": "ICMR Rheumatology Guidelines",
+        "condition": "Osteoarthritis",
+        "urgency": "LOW",
+        "indicators": ["joint pain", "stiffness in mornings", "tenderness", "loss of flexibility", "grating sensation in joint"],
+        "home_care": "Weight management, physical therapy, low-impact exercise (swimming/walking), and pain relievers like paracetamol.",
+        "hospital_trigger": "Sudden severe swelling, redness, or heat in the joint, or inability to move the joint."
+    },
+    {
+        "id": "mohfw_nipa",
+        "source": "MoHFW Nipah Virus Protocol",
+        "condition": "Nipah Virus Infection",
+        "urgency": "CRITICAL",
+        "indicators": ["fever", "headaches", "muscle pain", "vomiting", "sore throat", "dizziness", "drowsiness", "altered consciousness"],
+        "home_care": "Medical emergency. Requires immediate isolation and intensive supportive care in a hospital setting.",
+        "hospital_trigger": "All suspected cases require immediate hospitalization and strict isolation."
+    },
+    {
+        "id": "who_mumps",
+        "source": "WHO Guidelines",
+        "condition": "Mumps",
+        "urgency": "MEDIUM",
+        "indicators": ["swollen painful salivary glands", "fever", "headache", "muscle aches", "weakness", "loss of appetite"],
+        "home_care": "Isolate the patient. Rest, drink plenty of fluids, eat soft foods, apply warm/cold compress to swollen glands.",
+        "hospital_trigger": "Severe abdominal pain, stiff neck, severe headache, confusion, or painful testicles in post-pubertal males."
+    },
+    {
+        "id": "icmr_chickenpox",
+        "source": "ICMR Guidelines",
+        "condition": "Chickenpox",
+        "urgency": "LOW_TO_MEDIUM",
+        "indicators": ["itchy blister-like rash", "fever", "tiredness", "loss of appetite", "headache"],
+        "home_care": "Apply calamine lotion, take cool baths with baking soda/oatmeal, keep nails short to prevent scratching.",
+        "hospital_trigger": "Rash spreads to eyes, rash becomes very red/warm/tender, dizziness, disorientation, or severe cough."
+    },
+    {
+        "id": "mohfw_h1n1",
+        "source": "MoHFW Swine Flu Guidelines",
+        "condition": "H1N1 Influenza (Swine Flu)",
+        "urgency": "MEDIUM_TO_HIGH",
+        "indicators": ["fever", "cough", "sore throat", "runny nose", "body aches", "headache", "chills", "fatigue"],
+        "home_care": "Rest, drink clear fluids, use paracetamol for fever. Use antiviral drugs (like Oseltamivir) if prescribed.",
+        "hospital_trigger": "Difficulty breathing, bluish skin color, persistent vomiting, or sudden dizziness/confusion."
+    },
+    {
+        "id": "who_peptic_ulcer",
+        "source": "WHO Gastroenterology Guidelines",
+        "condition": "Peptic Ulcer Disease",
+        "urgency": "MEDIUM",
+        "indicators": ["burning stomach pain", "feeling of fullness", "bloating", "heartburn", "nausea", "intolerance to fatty foods"],
+        "home_care": "Avoid NSAIDs, alcohol, and spicy foods. Take prescribed proton pump inhibitors or H2 blockers.",
+        "hospital_trigger": "Vomiting blood (red or black), dark tarry stools, or sudden severe abdominal pain."
+    },
+    {
+        "id": "api_kidney_stones",
+        "source": "API Guidelines",
+        "condition": "Kidney Stones",
+        "urgency": "HIGH",
+        "indicators": ["severe sharp pain in side and back", "pain radiating to lower abdomen/groin", "pain comes in waves", "pain on urination", "pink/red/brown urine", "nausea"],
+        "home_care": "Drink massive amounts of water (2-3 liters/day) to help pass the stone. Take prescribed pain relievers.",
+        "hospital_trigger": "Pain so severe that you can't sit still, pain accompanied by fever and chills, or blood in urine with inability to pass urine."
+    },
+    {
+        "id": "icmr_vitamin_d",
+        "source": "ICMR Nutritional Guidelines",
+        "condition": "Vitamin D Deficiency",
+        "urgency": "LOW",
+        "indicators": ["bone pain", "muscle weakness", "fatigue", "frequent infections", "mood changes"],
+        "home_care": "Increase sun exposure, consume fortified foods, and take Vitamin D supplements as prescribed by a doctor.",
+        "hospital_trigger": "Severe bone deformities or severe muscle cramps leading to falls."
+    },
+    {
+        "id": "mohfw_zika",
+        "source": "MoHFW Guidelines",
+        "condition": "Zika Virus Disease",
+        "urgency": "MEDIUM",
+        "indicators": ["mild fever", "rash", "conjunctivitis", "muscle and joint pain", "malaise", "headache"],
+        "home_care": "Rest, drink plenty of fluids, treat pain and fever with paracetamol. Avoid NSAIDs until dengue is ruled out. Pregnant women need special monitoring.",
+        "hospital_trigger": "Neurological symptoms like severe muscle weakness (Guillain-Barré syndrome) or if contracted during pregnancy."
+    }
+]
+
+with open('c:/projects/agentic-health-checker/sample_guidelines.json', 'w', encoding='utf-8') as f:
+    json.dump(diseases, f, indent=2)
+
+print(f"Generated {len(diseases)} diseases in sample_guidelines.json")
