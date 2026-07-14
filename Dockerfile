@@ -14,6 +14,7 @@ COPY requirements.txt .
 
 # Install the Python dependencies (upgrade pip and setuptools first to fix wheel build errors)
 RUN pip install --no-cache-dir --upgrade pip "setuptools<70.0.0" wheel
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container
