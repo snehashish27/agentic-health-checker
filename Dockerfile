@@ -17,12 +17,17 @@ RUN pip install --no-cache-dir --upgrade pip "setuptools<70.0.0" wheel
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container
-COPY . .
+# 1. Copy only the files needed to build the vector database
+COPY app/ app/
+COPY scripts/ scripts/
+COPY sample_guidelines.json .
 
-# Run the seeding script to pre-download HuggingFace models and build ChromaDB during Docker build
-# This saves ~1 minute of startup time and prevents timeout crashes on Render!
+# Run the seeding script to pre-download HuggingFace models and build ChromaDB
+# Because this is done BEFORE copying frontend files, UI changes won't trigger a rebuild of this slow step!
 RUN python scripts/seed_vector_db.py
+
+# 2. Copy the rest of the application code (like frontend.html)
+COPY . .
 
 # Expose port 7860 for the FastAPI server (HuggingFace default)
 EXPOSE 7860

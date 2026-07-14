@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,294 +9,503 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #ffffff; }
-        
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+
         /* Smooth animations */
-        .fade-in-up { animation: fadeInUp 0.3s ease-out forwards; opacity: 0; transform: translateY(10px); }
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        
-        .loader { border-top-color: #ffffff; animation: spinner 1s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .recording-pulse { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
-        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 100% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } }
-        
-        .breathe-bg { animation: breatheScale 12s ease-in-out infinite alternate; transform-origin: top center; }
-        @keyframes breatheScale { 0% { transform: scale(1); } 100% { transform: scale(1.08); } }
-        
+        .fade-in-up {
+            animation: fadeInUp 0.3s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loader {
+            border-top-color: #ffffff;
+            animation: spinner 1s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .recording-pulse {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .breathe-bg {
+            animation: breatheScale 12s ease-in-out infinite alternate;
+            transform-origin: top center;
+        }
+
+        @keyframes breatheScale {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.08);
+            }
+        }
+
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
 
         /* Hidden report content for PDF */
-        #hiddenReportArea { display: none; }
+        #hiddenReportArea {
+            display: none;
+        }
     </style>
 </head>
+
 <body class="text-gray-800 antialiased h-screen flex flex-col overflow-hidden bg-transparent">
 
     <!-- Fixed Gradient Background -->
-    <div class="fixed inset-0 -z-20 opacity-90 breathe-bg" style="background: radial-gradient(ellipse 110% 80% at 50% 0%, #f97316 0%, #fb923c 25%, #dbeafe 65%, #f8fafc 100%);"></div>
+    <div class="fixed inset-0 -z-20 opacity-90 breathe-bg"
+        style="background: radial-gradient(ellipse 110% 80% at 50% 0%, #f97316 0%, #fb923c 25%, #dbeafe 65%, #f8fafc 100%);">
+    </div>
 
     <!-- Header Container -->
-    <div id="navContainer" class="absolute w-full top-0 left-0 flex justify-center pt-4 sm:pt-6 pb-2 z-50 flex-shrink-0 transition-all duration-700 ease-out">
-        <nav id="mainNav" class="bg-[#FFF8F0]/90 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-200/60 rounded-[40px] w-11/12 max-w-6xl transition-all duration-700 ease-out flex flex-col overflow-hidden relative z-50">
+    <div id="navContainer"
+        class="absolute w-full top-0 left-0 flex justify-center pt-4 sm:pt-6 pb-2 z-50 flex-shrink-0 transition-all duration-700 ease-out">
+        <nav id="mainNav"
+            class="bg-[#FFF8F0]/90 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-200/60 rounded-[40px] w-11/12 max-w-6xl transition-all duration-700 ease-out flex flex-col overflow-hidden relative z-50">
             <div class="px-3 sm:px-6 py-2 sm:py-3 flex justify-between items-center">
                 <!-- Left: Logo -->
                 <div class="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-0">
                     <div class="bg-gray-900 p-1 sm:p-1.5 rounded-full">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                            </path>
+                        </svg>
                     </div>
-                    <h1 class="text-base sm:text-2xl font-bold text-gray-900 tracking-tight hidden sm:block">sanjeevani</h1>
+                    <h1 class="text-base sm:text-2xl font-bold text-gray-900 tracking-tight hidden sm:block">sanjeevani
+                    </h1>
                     <h1 class="text-base sm:text-2xl font-bold text-gray-900 tracking-tight sm:hidden">sanjeevani</h1>
                 </div>
-                
+
                 <!-- Middle links removed as requested -->
 
                 <!-- Right: Buttons -->
                 <div class="flex items-center space-x-2">
-                    <button id="downloadBtn" onclick="downloadReport()" class="hidden items-center space-x-1 sm:space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors shadow-sm">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <button id="downloadBtn" onclick="downloadReport()"
+                        class="hidden items-center space-x-1 sm:space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors shadow-sm">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
                         <span class="hidden sm:inline">PDF</span>
                     </button>
-                    <a href="https://github.com/google/agentic-health-checker" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-1 sm:space-x-2 bg-gray-900 hover:bg-gray-800 text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-[15px] font-medium transition-colors shadow-sm">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                    <a href="https://github.com/snehashish27/agentic-health-checker" target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center space-x-1 sm:space-x-2 bg-gray-900 hover:bg-gray-800 text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-[15px] font-medium transition-colors shadow-sm">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                clip-rule="evenodd"></path>
+                        </svg>
                         <span class="hidden sm:inline">GitHub</span>
                     </a>
-                    <button onclick="toggleMedicalToolkit()" class="flex items-center space-x-1 sm:space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-3 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-[15px] font-medium transition-colors shadow-sm animate-pulse">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <button onclick="toggleMedicalToolkit()"
+                        class="flex items-center space-x-1 sm:space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-3 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-[15px] font-medium transition-colors shadow-sm animate-pulse">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 text-red-500" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                            </path>
+                        </svg>
                         <span class="hidden sm:inline">Toolkit</span>
                     </button>
                 </div>
             </div>
-        
+
             <!-- Mega Menu Container -->
-            <div id="megaMenuContainer" class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out w-full border-t border-transparent flex flex-col">
+            <div id="megaMenuContainer"
+                class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out w-full border-t border-transparent flex flex-col">
                 <!-- Toolkit Body: Tool Selection Menu -->
-            <div id="toolkitMenu" class="p-6 overflow-y-auto flex-grow grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- First Aid Card -->
-                <button onclick="openFirstAidMenu()" class="text-left bg-white border-2 border-red-100 hover:border-red-500 rounded-xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -z-10 group-hover:bg-red-100 transition-colors"></div>
-                    <div class="bg-red-100 text-red-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">First-Aid Guide</h3>
-                    <p class="text-sm text-gray-500 line-clamp-2">Interactive, step-by-step emergency instructions with audio prompts.</p>
-                </button>
-
-                
-                <!-- Vitals Analyzer Card -->
-                <button onclick="openVitalsMenu()" class="text-left bg-white border-2 border-emerald-100 hover:border-emerald-500 rounded-xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 group-hover:bg-emerald-100 transition-colors"></div>
-                    <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">Vitals Analyzer</h3>
-                    <p class="text-sm text-gray-500 line-clamp-2">Log your vitals (BP, Heart Rate, SpO2) for instant AI threshold analysis.</p>
-                </button>
-
-                <!-- Lab Explainer Card -->
-                <button onclick="openLabExplainerMenu()" class="text-left bg-white border-2 border-purple-100 hover:border-purple-500 rounded-xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -z-10 group-hover:bg-purple-100 transition-colors"></div>
-                    <div class="bg-purple-100 text-purple-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">Lab Report Explainer</h3>
-                    <p class="text-sm text-gray-500 line-clamp-2">Paste complex blood tests or lab results for a simple explanation.</p>
-                </button>
-            </div>
-
-            <!-- Toolkit Body: First Aid Emergency Selection -->
-            <div id="firstAidMenu" class="p-6 overflow-y-auto flex-grow hidden">
-                <div class="flex items-center mb-6">
-                    <button onclick="backToToolkitMenu()" class="mr-4 text-gray-500 hover:text-gray-800 flex items-center text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-lg">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                        Back
+                <div id="toolkitMenu"
+                    class="p-6 overflow-y-auto flex-grow grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- First Aid Card -->
+                    <button onclick="openFirstAidMenu()"
+                        class="text-left bg-white border-2 border-red-100 hover:border-red-500 rounded-xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -z-10 group-hover:bg-red-100 transition-colors">
+                        </div>
+                        <div
+                            class="bg-red-100 text-red-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">First-Aid Guide</h3>
+                        <p class="text-sm text-gray-500 line-clamp-2">Interactive, step-by-step emergency instructions
+                            with audio prompts.</p>
                     </button>
-                    <h3 class="text-xl font-bold text-gray-900">Select Emergency Scenario</h3>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="emergencyGrid">
-                    <!-- JS populated -->
-                </div>
-            </div>
 
-            <!-- Toolkit Body: Lab Explainer -->
-            <div id="labExplainerMenu" class="p-6 overflow-y-auto flex-grow hidden flex-col h-full">
-                <div class="flex items-center mb-6">
-                    <button onclick="backToToolkitMenu()" class="mr-4 text-gray-500 hover:text-gray-800 flex items-center text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-lg">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                        Back
+
+                    <!-- Vitals Analyzer Card -->
+                    <button onclick="openVitalsMenu()"
+                        class="text-left bg-white border-2 border-emerald-100 hover:border-emerald-500 rounded-xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 group-hover:bg-emerald-100 transition-colors">
+                        </div>
+                        <div
+                            class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Vitals Analyzer</h3>
+                        <p class="text-sm text-gray-500 line-clamp-2">Log your vitals (BP, Heart Rate, SpO2) for instant
+                            AI threshold analysis.</p>
                     </button>
-                    <h3 class="text-xl font-bold text-gray-900">Lab Report Explainer</h3>
+
+                    <!-- Lab Explainer Card -->
+                    <button onclick="openLabExplainerMenu()"
+                        class="text-left bg-white border-2 border-purple-100 hover:border-purple-500 rounded-xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -z-10 group-hover:bg-purple-100 transition-colors">
+                        </div>
+                        <div
+                            class="bg-purple-100 text-purple-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Lab Report Explainer</h3>
+                        <p class="text-sm text-gray-500 line-clamp-2">Paste complex blood tests or lab results for a
+                            simple explanation.</p>
+                    </button>
                 </div>
-                
-                <div class="flex-grow flex flex-col sm:flex-row gap-6">
-                    <!-- Input Area -->
-                    <div class="w-full sm:w-1/2 flex flex-col">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Paste your lab report text here:</label>
-                        <textarea id="labReportInput" class="w-full flex-grow p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none font-mono text-sm shadow-inner min-h-[200px]" placeholder="e.g. Hemoglobin 11.2 g/dL (Low)&#10;WBC 8.5..."></textarea>
-                        <button onclick="explainLabReport()" id="explainLabBtn" class="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-md transition-colors flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            Analyze Report
+
+                <!-- Toolkit Body: First Aid Emergency Selection -->
+                <div id="firstAidMenu" class="p-6 overflow-y-auto flex-grow hidden">
+                    <div class="flex items-center mb-6">
+                        <button onclick="backToToolkitMenu()"
+                            class="mr-4 text-gray-500 hover:text-gray-800 flex items-center text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-lg">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back
                         </button>
+                        <h3 class="text-xl font-bold text-gray-900">Select Emergency Scenario</h3>
                     </div>
-                    
-                    <!-- Result Area -->
-                    <div class="w-full sm:w-1/2 bg-gray-50 border border-gray-100 rounded-xl p-5 overflow-y-auto flex flex-col relative min-h-[250px]">
-                        <div id="labExplainerLoading" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-purple-600 rounded-xl">
-                            <div class="loader ease-linear rounded-full border-4 border-t-4 border-purple-200 h-12 w-12 mb-4 border-t-purple-600"></div>
-                            <p class="font-medium animate-pulse">Watsonx is analyzing...</p>
-                        </div>
-                        <div id="labExplainerResult" class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap flex-grow">
-                            <div class="flex flex-col items-center justify-center h-full text-gray-400 text-center py-10">
-                                <svg class="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                <p>Results will appear here in plain English.</p>
-                            </div>
-                        </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="emergencyGrid">
+                        <!-- JS populated -->
                     </div>
                 </div>
-            </div>
 
-            
-            <!-- Toolkit Body: Vitals Analyzer -->
-            <div id="vitalsMenu" class="p-4 sm:p-6 overflow-y-auto flex-grow hidden flex-col h-full w-full">
-                <div class="flex items-center mb-6">
-                    <button onclick="backToToolkitMenu()" class="mr-4 text-gray-500 hover:text-gray-800 flex items-center text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-lg">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                        Back
-                    </button>
-                    <h3 class="text-xl font-bold text-gray-900">Vitals Analyzer</h3>
-                </div>
-                
-                <div class="flex-grow flex flex-col lg:flex-row gap-6">
-                    <!-- Input Area -->
-                    <div class="w-full lg:w-1/2 flex flex-col gap-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Blood Pressure (mmHg)</label>
-                                <input type="text" id="vitalBP" placeholder="e.g. 120/80" class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Heart Rate (bpm)</label>
-                                <input type="number" id="vitalHR" placeholder="e.g. 75" class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">SpO2 (%)</label>
-                                <input type="number" id="vitalSpO2" placeholder="e.g. 98" class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Temperature (°F)</label>
-                                <input type="number" id="vitalTemp" placeholder="e.g. 98.6" class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                            </div>
-                        </div>
-                        <button onclick="analyzeVitals()" class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition-colors flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Analyze Vitals
+                <!-- Toolkit Body: Lab Explainer -->
+                <div id="labExplainerMenu" class="p-6 overflow-y-auto flex-grow hidden flex-col h-full">
+                    <div class="flex items-center mb-6">
+                        <button onclick="backToToolkitMenu()"
+                            class="mr-4 text-gray-500 hover:text-gray-800 flex items-center text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-lg">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back
                         </button>
+                        <h3 class="text-xl font-bold text-gray-900">Lab Report Explainer</h3>
                     </div>
-                    
-                    <!-- Result Area -->
-                    <div class="w-full lg:w-1/2 bg-gray-50 border border-gray-100 rounded-xl p-4 flex flex-col relative min-h-[150px] sm:min-h-[200px]">
-                        <div id="vitalsResult" class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap flex-grow overflow-y-auto">
-                            <div class="flex flex-col items-center justify-center h-full text-gray-400 text-center py-6 sm:py-10">
-                                <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                                <p>Enter your vitals to see analysis.</p>
-                            </div>
-                        </div>
-                        <button id="submitVitalsToChatBtn" onclick="submitVitalsToChat()" class="hidden mt-4 w-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-bold py-2 rounded-xl transition-colors">
-                            Submit to Chat Context
-                        </button>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Toolkit Body: First Aid Slideshow -->
-            <div id="firstAidSlideshow" class="flex-grow flex flex-col hidden bg-gray-900 text-white relative min-h-[60vh]">
-                 <div class="p-4 flex items-center justify-between border-b border-gray-800">
-                    <button onclick="closeSlideshow()" class="text-gray-400 hover:text-white flex items-center text-sm font-bold uppercase tracking-wider">
-                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        Exit Guide
-                    </button>
-                    <span id="slideCounter" class="font-mono text-gray-400 text-lg">1 / 5</span>
-                 </div>
-                 
-                 <div class="flex-grow flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
-                     <h2 id="slideTitle" class="text-3xl sm:text-5xl font-bold mb-8 z-10 text-red-400 uppercase tracking-widest">Step 1</h2>
-                     <p id="slideDesc" class="text-xl sm:text-3xl leading-relaxed font-medium z-10 max-w-3xl">Description</p>
-                 </div>
-                 
-                 <div class="p-6 bg-black flex items-center justify-between">
-                     <button onclick="prevSlide()" id="prevSlideBtn" class="px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm sm:text-lg font-bold disabled:opacity-30 transition-colors">Previous</button>
-                     <button onclick="playSlideAudio()" class="w-16 h-16 sm:w-20 sm:h-20 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-transform hover:scale-110">
-                        <svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9m-5.657-9.9a2 2 0 00-2.828 0l-4 4H2v4h3.172l4 4a2 2 0 002.828 0V8.464z"></path></svg>
-                     </button>
-                     <button onclick="nextSlide()" id="nextSlideBtn" class="px-4 py-3 sm:px-6 sm:py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm sm:text-lg font-bold disabled:opacity-30 transition-colors">Next Step</button>
-                 </div>
+                    <div class="flex-grow flex flex-col sm:flex-row gap-6">
+                        <!-- Input Area -->
+                        <div class="w-full sm:w-1/2 flex flex-col">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Paste your lab report text
+                                here:</label>
+                            <textarea id="labReportInput"
+                                class="w-full flex-grow p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none font-mono text-sm shadow-inner min-h-[200px]"
+                                placeholder="e.g. Hemoglobin 11.2 g/dL (Low)&#10;WBC 8.5..."></textarea>
+                            <button onclick="explainLabReport()" id="explainLabBtn"
+                                class="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-md transition-colors flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                Analyze Report
+                            </button>
+                        </div>
+
+                        <!-- Result Area -->
+                        <div
+                            class="w-full sm:w-1/2 bg-gray-50 border border-gray-100 rounded-xl p-5 overflow-y-auto flex flex-col relative min-h-[250px]">
+                            <div id="labExplainerLoading"
+                                class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-purple-600 rounded-xl">
+                                <div
+                                    class="loader ease-linear rounded-full border-4 border-t-4 border-purple-200 h-12 w-12 mb-4 border-t-purple-600">
+                                </div>
+                                <p class="font-medium animate-pulse">Watsonx is analyzing...</p>
+                            </div>
+                            <div id="labExplainerResult"
+                                class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap flex-grow">
+                                <div
+                                    class="flex flex-col items-center justify-center h-full text-gray-400 text-center py-10">
+                                    <svg class="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    <p>Results will appear here in plain English.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Toolkit Body: Vitals Analyzer -->
+                <div id="vitalsMenu" class="p-4 sm:p-6 overflow-y-auto flex-grow hidden flex-col h-full w-full">
+                    <div class="flex items-center mb-6">
+                        <button onclick="backToToolkitMenu()"
+                            class="mr-4 text-gray-500 hover:text-gray-800 flex items-center text-sm font-medium bg-gray-100 px-3 py-1.5 rounded-lg">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back
+                        </button>
+                        <h3 class="text-xl font-bold text-gray-900">Vitals Analyzer</h3>
+                    </div>
+
+                    <div class="flex-grow flex flex-col lg:flex-row gap-6">
+                        <!-- Input Area -->
+                        <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Blood Pressure
+                                        (mmHg)</label>
+                                    <input type="text" id="vitalBP" placeholder="e.g. 120/80"
+                                        class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Heart Rate (bpm)</label>
+                                    <input type="number" id="vitalHR" placeholder="e.g. 75"
+                                        class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">SpO2 (%)</label>
+                                    <input type="number" id="vitalSpO2" placeholder="e.g. 98"
+                                        class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Temperature (°F)</label>
+                                    <input type="number" id="vitalTemp" placeholder="e.g. 98.6"
+                                        class="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                                </div>
+                            </div>
+                            <button onclick="analyzeVitals()"
+                                class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition-colors flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Analyze Vitals
+                            </button>
+                        </div>
+
+                        <!-- Result Area -->
+                        <div
+                            class="w-full lg:w-1/2 bg-gray-50 border border-gray-100 rounded-xl p-4 flex flex-col relative min-h-[150px] sm:min-h-[200px]">
+                            <div id="vitalsResult"
+                                class="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap flex-grow overflow-y-auto">
+                                <div
+                                    class="flex flex-col items-center justify-center h-full text-gray-400 text-center py-6 sm:py-10">
+                                    <svg class="w-10 h-10 sm:w-12 sm:h-12 mb-3 opacity-50" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                        </path>
+                                    </svg>
+                                    <p>Enter your vitals to see analysis.</p>
+                                </div>
+                            </div>
+                            <button id="submitVitalsToChatBtn" onclick="submitVitalsToChat()"
+                                class="hidden mt-4 w-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-bold py-2 rounded-xl transition-colors">
+                                Submit to Chat Context
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolkit Body: First Aid Slideshow -->
+                <div id="firstAidSlideshow"
+                    class="flex-grow flex flex-col hidden bg-gray-900 text-white relative min-h-[60vh]">
+                    <div class="p-4 flex items-center justify-between border-b border-gray-800">
+                        <button onclick="closeSlideshow()"
+                            class="text-gray-400 hover:text-white flex items-center text-sm font-bold uppercase tracking-wider">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Exit Guide
+                        </button>
+                        <span id="slideCounter" class="font-mono text-gray-400 text-lg">1 / 5</span>
+                    </div>
+
+                    <div
+                        class="flex-grow flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+                        <h2 id="slideTitle"
+                            class="text-3xl sm:text-5xl font-bold mb-8 z-10 text-red-400 uppercase tracking-widest">Step
+                            1</h2>
+                        <p id="slideDesc" class="text-xl sm:text-3xl leading-relaxed font-medium z-10 max-w-3xl">
+                            Description</p>
+                    </div>
+
+                    <div class="p-6 bg-black flex items-center justify-between">
+                        <button onclick="prevSlide()" id="prevSlideBtn"
+                            class="px-4 py-3 sm:px-6 sm:py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm sm:text-lg font-bold disabled:opacity-30 transition-colors">Previous</button>
+                        <button onclick="playSlideAudio()"
+                            class="w-16 h-16 sm:w-20 sm:h-20 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-transform hover:scale-110">
+                            <svg class="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9m-5.657-9.9a2 2 0 00-2.828 0l-4 4H2v4h3.172l4 4a2 2 0 002.828 0V8.464z">
+                                </path>
+                            </svg>
+                        </button>
+                        <button onclick="nextSlide()" id="nextSlideBtn"
+                            class="px-4 py-3 sm:px-6 sm:py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm sm:text-lg font-bold disabled:opacity-30 transition-colors">Next
+                            Step</button>
+                    </div>
+                </div>
             </div>
-            </div>
-</nav>
+        </nav>
     </div>
 
     <!-- Main Layout Wrapper -->
     <div class="flex-grow flex flex-row overflow-hidden relative w-full">
-        
+
         <!-- Chat Area (Left/Main) -->
         <div class="flex-grow flex flex-col min-w-0 bg-transparent">
-            
+
             <!-- Hero Section (Visible on load) -->
-            <div id="heroSection" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0 mb-[15vh]">
-                <div class="text-blue-700 font-medium text-sm sm:text-base mb-4 tracking-wide uppercase">Your Intelligent Medical Assistant</div>
+            <div id="heroSection"
+                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0 mb-[15vh]">
+                <div class="text-blue-700 font-medium text-sm sm:text-base mb-4 tracking-wide uppercase">Your
+                    Intelligent Medical Assistant</div>
                 <h1 class="text-5xl sm:text-6xl text-gray-900 font-serif mb-6 text-center">Sanjeevani AI</h1>
-                <p class="text-gray-700 text-center max-w-xl text-base sm:text-lg px-4 leading-relaxed">Powered by agentic AI to instantly analyze symptoms, match clinical protocols, and triangulate emergency care.</p>
+                <p class="text-gray-700 text-center max-w-xl text-base sm:text-lg px-4 leading-relaxed">Powered by
+                    agentic AI to instantly analyze symptoms, match clinical protocols, and triangulate emergency care.
+                </p>
             </div>
 
             <!-- Chat History (Scrollable) -->
-            <div id="chatContainer" class="flex-grow overflow-y-auto px-4 pb-4 pt-[100px] sm:px-6 sm:pb-6 sm:pt-[120px] bg-transparent opacity-0 transition-opacity duration-700 pointer-events-none z-10 relative">
+            <div id="chatContainer"
+                class="flex-grow overflow-y-auto px-4 pb-4 pt-[100px] sm:px-6 sm:pb-6 sm:pt-[120px] bg-transparent opacity-0 transition-opacity duration-700 pointer-events-none z-10 relative">
                 <div class="max-w-4xl mx-auto space-y-6 flex flex-col" id="chatHistory">
-                    
+
                     <!-- Welcome message removed from history, moved to hero section conceptually -->
 
                 </div>
             </div>
 
             <!-- Input Area -->
-            <div id="inputWrapper" class="flex-none transition-all duration-700 ease-in-out mb-[25vh] pb-6 pt-2 z-20 px-4 sm:px-0">
-                <div class="max-w-3xl mx-auto relative flex items-end space-x-2 bg-white/80 backdrop-blur-xl p-2 rounded-3xl shadow-xl border border-white/60">
+            <div id="inputWrapper"
+                class="flex-none transition-all duration-700 ease-in-out mb-[25vh] pb-6 pt-2 z-20 px-4 sm:px-0">
+                <div
+                    class="max-w-3xl mx-auto relative flex items-end space-x-2 bg-white/80 backdrop-blur-xl p-2 rounded-3xl shadow-xl border border-white/60">
                     <div class="relative flex-grow">
-                        <textarea id="complaintInput" rows="1" class="w-full bg-transparent p-3.5 pr-12 rounded-2xl focus:outline-none transition-all resize-none text-gray-800 text-base max-h-32 overflow-y-auto" placeholder="Type your symptoms here..." oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
-                        
-                        <button id="micBtn" onclick="toggleRecording()" class="absolute right-2 bottom-2 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex items-center justify-center" title="Click to speak">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        <textarea id="complaintInput" rows="1"
+                            class="w-full bg-transparent p-3.5 pr-12 rounded-2xl focus:outline-none transition-all resize-none text-gray-800 text-base max-h-32 overflow-y-auto"
+                            placeholder="Type your symptoms here..."
+                            oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+
+                        <button id="micBtn" onclick="toggleRecording()"
+                            class="absolute right-2 bottom-2 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors flex items-center justify-center"
+                            title="Click to speak">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                             </svg>
                         </button>
                     </div>
 
-                    <button id="analyzeBtn" onclick="analyzeSymptoms()" class="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-xl shadow-md transition-all flex items-center justify-center h-[52px] w-[52px]">
-                        <svg id="sendIcon" class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                        <div id="loadingSpinner" class="loader ease-linear rounded-full border-2 border-t-2 border-white h-5 w-5 hidden"></div>
+                    <button id="analyzeBtn" onclick="analyzeSymptoms()"
+                        class="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-xl shadow-md transition-all flex items-center justify-center h-[52px] w-[52px]">
+                        <svg id="sendIcon" class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        <div id="loadingSpinner"
+                            class="loader ease-linear rounded-full border-2 border-t-2 border-white h-5 w-5 hidden">
+                        </div>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Sidebar Backdrop for mobile -->
-        <div id="sidebarBackdrop" onclick="closeSidebar()" class="fixed inset-0 bg-gray-900/50 z-30 transition-opacity opacity-0 pointer-events-none sm:hidden"></div>
+        <div id="sidebarBackdrop" onclick="closeSidebar()"
+            class="fixed inset-0 bg-gray-900/50 z-30 transition-opacity opacity-0 pointer-events-none sm:hidden"></div>
 
         <!-- Side Panel (Right) -->
-        <div id="rightSidebar" class="fixed inset-y-0 right-0 z-40 w-[85%] sm:w-96 bg-gray-50 shadow-2xl sm:shadow-none transform translate-x-full transition-transform duration-300 ease-in-out sm:relative flex flex-col border-l border-gray-200 hidden">
-            
+        <div id="rightSidebar"
+            class="fixed inset-y-0 right-0 z-40 w-[85%] sm:w-96 bg-gray-50 shadow-2xl sm:shadow-none transform translate-x-full transition-transform duration-300 ease-in-out sm:relative flex flex-col border-l border-gray-200 hidden">
+
             <div class="flex-none flex items-center justify-between p-4 border-b border-gray-200 bg-white">
                 <h2 class="font-bold text-gray-800 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span> Protocols Matched
                 </h2>
-                <button onclick="closeSidebar()" class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
+                <button onclick="closeSidebar()"
+                    class="flex items-center space-x-1 px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
                     <span>Close</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
-            
+
             <!-- Sidebar Content -->
             <div id="sidebarContent" class="flex-grow overflow-y-auto p-4 space-y-4">
                 <!-- Content injected via JS -->
@@ -323,13 +533,13 @@
         function openSidebar() {
             // Remove hidden to insert into DOM
             rightSidebar.classList.remove('hidden');
-            
+
             // Force browser reflow so transition works
             void rightSidebar.offsetWidth;
-            
+
             // Slide in
             rightSidebar.classList.remove('translate-x-full');
-            
+
             // Mobile Backdrop
             if (window.innerWidth < 640) {
                 sidebarBackdrop.classList.remove('pointer-events-none');
@@ -341,12 +551,12 @@
         function closeSidebar() {
             // Slide out
             rightSidebar.classList.add('translate-x-full');
-            
+
             // Mobile Backdrop
             sidebarBackdrop.classList.remove('opacity-100');
             sidebarBackdrop.classList.add('opacity-0');
             sidebarBackdrop.classList.add('pointer-events-none');
-            
+
             // Hide completely after transition to remove layout gap
             setTimeout(() => {
                 if (rightSidebar.classList.contains('translate-x-full')) {
@@ -363,7 +573,7 @@
             recognition = new webkitSpeechRecognition();
             recognition.continuous = false;
             recognition.interimResults = true;
-            recognition.lang = 'en-IN'; 
+            recognition.lang = 'en-IN';
 
             recognition.onstart = () => {
                 isRecording = true;
@@ -394,7 +604,7 @@
             if (isRecording) {
                 recognition.stop();
             } else {
-                document.getElementById('complaintInput').value = ""; 
+                document.getElementById('complaintInput').value = "";
                 recognition.start();
             }
         }
@@ -409,7 +619,7 @@
         // --- 2. TEXT-TO-SPEECH (Output) ---
         let synth = window.speechSynthesis;
         let currentUtterance = null;
-        let ttsData = ""; 
+        let ttsData = "";
         let cachedVoices = [];
 
         function populateVoices() { cachedVoices = synth.getVoices(); }
@@ -422,7 +632,7 @@
             let langCode = 'en-IN'; // Default Hinglish/English
 
             if (!text) text = '';
-            
+
             // Script Detection via Regex Unicode Ranges
             if (/[\u0900-\u097F]/.test(text)) langCode = 'hi-IN'; // Hindi (Devanagari)
             else if (/[\u0980-\u09FF]/.test(text)) langCode = 'bn-IN'; // Bengali
@@ -435,19 +645,19 @@
             else if (/[\u0A00-\u0A7F]/.test(text)) langCode = 'pa-IN'; // Punjabi
 
             let voice = cachedVoices.find(v => v.lang.startsWith(langCode));
-            
+
             // Fallbacks if exact regional voice is missing
-            if (!voice && langCode !== 'en-IN') voice = cachedVoices.find(v => v.lang.startsWith('hi')); 
+            if (!voice && langCode !== 'en-IN') voice = cachedVoices.find(v => v.lang.startsWith('hi'));
             if (!voice) voice = cachedVoices.find(v => v.lang.startsWith('en-IN'));
             if (!voice && cachedVoices.length > 0) voice = cachedVoices.find(v => v.lang.startsWith('en-US')) || cachedVoices[0];
-            
+
             return voice;
         }
 
         function prepareTTS(data) {
             let symptoms = data.clinical_extraction.symptoms.join(" and ");
             let text = `Based on the extraction, the patient is experiencing ${symptoms}. `;
-            
+
             if (data.medical_knowledge && data.medical_knowledge.length > 0) {
                 let protocol = data.medical_knowledge[0];
                 text += `The retrieved protocol is for ${protocol.condition}. `;
@@ -461,21 +671,21 @@
 
         function toggleReadAloud() {
             const btnText = document.getElementById('ttsText');
-            
+
             if (synth.speaking) {
                 synth.cancel();
-                if(btnText) btnText.innerText = "Read Aloud";
+                if (btnText) btnText.innerText = "Read Aloud";
             } else {
-                if(!ttsData) return;
+                if (!ttsData) return;
                 currentUtterance = new SpeechSynthesisUtterance(ttsData);
                 currentUtterance.rate = 1.0;
                 const bestVoice = getBestVoice(ttsData);
                 if (bestVoice) currentUtterance.voice = bestVoice;
-                
-                currentUtterance.onend = () => { if(btnText) btnText.innerText = "Read Aloud"; };
-                
+
+                currentUtterance.onend = () => { if (btnText) btnText.innerText = "Read Aloud"; };
+
                 synth.speak(currentUtterance);
-                if(btnText) btnText.innerText = "Stop Audio";
+                if (btnText) btnText.innerText = "Stop Audio";
             }
         }
 
@@ -486,13 +696,13 @@
             element.style.display = 'block';
 
             const opt = {
-                margin:       [0.5, 0.5, 0.5, 0.5],
-                filename:     'Clinical_RAG_Report.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: 'Clinical_RAG_Report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
-            
+
             html2pdf().set(opt).from(element).save().then(() => {
                 // Re-hide after PDF is created
                 element.style.display = 'none';
@@ -515,7 +725,7 @@
 
         function populateSidebar(data) {
             const sidebar = document.getElementById('sidebarContent');
-            
+
             if (data.medical_knowledge && data.medical_knowledge.length > 0) {
                 // Build sidebar HTML
                 const guidelinesHtml = data.medical_knowledge.map(g => `
@@ -529,9 +739,9 @@
                         <p class="text-xs text-red-700 font-medium bg-red-50 p-2 rounded-lg border border-red-100"><strong class="uppercase text-[10px] flex items-center inline-flex"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Trigger:</strong> ${g.hospital_trigger}</p>
                     </div>
                 `).join('');
-                
+
                 sidebar.innerHTML = guidelinesHtml;
-                
+
                 // Automatically open sidebar on desktop
                 if (window.innerWidth >= 640) {
                     openSidebar();
@@ -549,7 +759,7 @@
         function populateHiddenReport(data) {
             const ext = data.clinical_extraction;
             const severityStr = ext.severity_markers && ext.severity_markers.length > 0 ? ext.severity_markers.join(', ') : 'None detected';
-            
+
             let html = `
                 <div style="font-family: sans-serif; color: #333; padding: 20px;">
                     <h2 style="color: #1e3a8a; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px;">Clinical RAG Report</h2>
@@ -596,7 +806,7 @@
 
         function appendAIMessage(data) {
             const chatHistory = document.getElementById('chatHistory');
-            
+
             // Build the AI Response HTML
             let html = `
             <div class="flex items-start max-w-[95%] sm:max-w-[85%] self-start fade-in-up mt-4">
@@ -615,11 +825,11 @@
             const ext = data.clinical_extraction;
             const severityStr = ext.severity_markers && ext.severity_markers.length > 0 ? ext.severity_markers.join(', ') : 'None detected';
             const sevColor = severityStr.includes('severe') || severityStr.includes('bleeding') ? 'text-red-600 font-bold' : 'text-gray-900';
-            
+
             const numProtocols = data.medical_knowledge ? data.medical_knowledge.length : 0;
             const messageId = messageHistoryData.length;
             messageHistoryData.push(data);
-            
+
             if (numProtocols > 0) {
                 html += `
                         <div onclick="openSidebarForMessage(${messageId})" class="bg-white rounded-xl p-3 sm:p-4 border border-gray-200 mb-4 shadow-sm cursor-pointer hover:border-blue-300 hover:shadow-md transition-all group relative">
@@ -675,7 +885,7 @@
                 </div>
             </div>
             `;
-            
+
             chatHistory.insertAdjacentHTML('beforeend', html);
             scrollToBottom();
         }
@@ -692,9 +902,9 @@
             if (typeof synth === 'undefined') return;
             const container = btn.closest('.bg-gray-50');
             const textContent = container.querySelector('.whitespace-pre-wrap').innerText;
-            
+
             if (synth.speaking) synth.cancel();
-            
+
             const utterance = new SpeechSynthesisUtterance(textContent);
             utterance.rate = 1.0;
             const bestVoice = getBestVoice(textContent);
@@ -705,7 +915,7 @@
         function copyMessageText(btn) {
             const container = btn.closest('.bg-gray-50');
             const textContent = container.querySelector('.whitespace-pre-wrap').innerText;
-            
+
             navigator.clipboard.writeText(textContent).then(() => {
                 const originalSvg = btn.innerHTML;
                 btn.innerHTML = `<svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
@@ -721,7 +931,7 @@
         function startChatMode() {
             if (!isFirstChat) return;
             isFirstChat = false;
-            
+
             // Hide Hero Text
             const heroSection = document.getElementById('heroSection');
             heroSection.classList.add('opacity-0', '-translate-y-10');
@@ -730,16 +940,16 @@
             // Show Nav (Expand to full width)
             const navContainer = document.getElementById('navContainer');
             const nav = document.getElementById('mainNav');
-            
+
             navContainer.classList.remove('pt-4', 'sm:pt-6', 'pb-2');
-            
+
             nav.classList.remove('rounded-[40px]', 'w-11/12', 'max-w-6xl', 'shadow-[0_8px_30px_rgb(0,0,0,0.04)]');
             nav.classList.add('w-full', 'shadow-sm', 'border-b');
 
             // Move Input Area to bottom
             const inputWrapper = document.getElementById('inputWrapper');
             inputWrapper.classList.remove('mb-[25vh]');
-            
+
             // Show Chat Container
             const chatContainer = document.getElementById('chatContainer');
             chatContainer.classList.remove('opacity-0', 'pointer-events-none');
@@ -766,7 +976,7 @@
             const btn = document.getElementById('analyzeBtn');
             const icon = document.getElementById('sendIcon');
             const spinner = document.getElementById('loadingSpinner');
-            
+
             if (!rightSidebar.classList.contains('translate-x-full')) {
                 closeSidebar();
             }
@@ -782,9 +992,9 @@
             btn.disabled = true;
 
             // Reset TTS
-            if(synth.speaking) synth.cancel();
+            if (synth.speaking) synth.cancel();
             const btnText = document.getElementById('ttsText');
-            if(btnText) btnText.innerText = "Read Aloud";
+            if (btnText) btnText.innerText = "Read Aloud";
 
             try {
                 let lat = null;
@@ -810,9 +1020,9 @@
 
                 // Prepare history to send (before pushing the new message)
                 const historyToSend = [...chatMemory];
-                
+
                 // Add new user message to local memory
-                chatMemory.push({role: "user", content: input});
+                chatMemory.push({ role: "user", content: input });
                 if (chatMemory.length > 10) chatMemory = chatMemory.slice(-10); // Keep last 5 turns (10 msgs)
 
                 const response = await fetch('/api/v1/analyze', {
@@ -823,9 +1033,9 @@
 
                 if (!response.ok) throw new Error("Backend connection failed");
                 const data = await response.json();
-                
+
                 // Add AI response to local memory
-                chatMemory.push({role: "assistant", content: data.rag_output});
+                chatMemory.push({ role: "assistant", content: data.rag_output });
 
                 appendAIMessage(data);
                 populateSidebar(data);
@@ -847,7 +1057,7 @@
         }
 
         // Handle Enter key to submit
-        document.getElementById('complaintInput').addEventListener('keydown', function(e) {
+        document.getElementById('complaintInput').addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 analyzeSymptoms();
@@ -863,8 +1073,8 @@
         const firstAidSlideshow = document.getElementById('firstAidSlideshow');
         const labExplainerMenu = document.getElementById('labExplainerMenu');
         const vitalsMenu = document.getElementById('vitalsMenu');
-        
-        
+
+
         const megaMenuContainer = document.getElementById('megaMenuContainer');
         const mainNav = document.getElementById('mainNav');
         let megaMenuOpen = false;
@@ -876,18 +1086,18 @@
                 openMegaMenu();
             }
         }
-        
+
         function openMegaMenu() {
             if (megaMenuOpen) return;
             megaMenuContainer.classList.remove('hidden');
             megaMenuContainer.style.maxHeight = '70vh';
             megaMenuContainer.classList.add('border-gray-200', 'overflow-y-auto');
             megaMenuContainer.classList.remove('overflow-hidden');
-            
+
             // Add a blurred backdrop behind the main layout to emphasize the menu
             const layout = document.getElementById('heroSection');
             if (layout) layout.style.filter = "blur(4px)";
-            
+
             megaMenuOpen = true;
         }
 
@@ -896,11 +1106,11 @@
             megaMenuContainer.style.maxHeight = '0px';
             megaMenuContainer.classList.remove('border-gray-200', 'overflow-y-auto');
             megaMenuContainer.classList.add('overflow-hidden');
-            
+
             // Remove blur
             const layout = document.getElementById('heroSection');
             if (layout) layout.style.filter = "none";
-            
+
             setTimeout(() => {
                 if (!isFirstChat) { // if chat has started, it should stay full width
                     mainNav.classList.remove('rounded-[40px]');
@@ -912,11 +1122,11 @@
             }, 300);
             megaMenuOpen = false;
         }
-        
-        
 
-        
-        
+
+
+
+
 
         function openFirstAidMenu() {
             toolkitMenu.classList.add('hidden');
@@ -961,12 +1171,12 @@
                 });
 
                 if (!response.ok) throw new Error("Server error");
-                
+
                 const data = await response.json();
-                
+
                 // Format the markdown bold text nicely
                 let formattedExplanation = data.explanation.replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-700 font-bold">$1</strong>');
-                
+
                 resultDiv.innerHTML = `<div class="fade-in-up bg-white p-4 rounded-xl shadow-sm border border-purple-100">${formattedExplanation}</div>`;
             } catch (error) {
                 resultDiv.innerHTML = `<p class="text-red-500 font-bold">Failed to analyze report. Ensure the backend is running.</p>`;
@@ -1001,7 +1211,7 @@
             const hr = parseInt(document.getElementById('vitalHR').value);
             const spo2 = parseInt(document.getElementById('vitalSpO2').value);
             const temp = parseFloat(document.getElementById('vitalTemp').value);
-            
+
             if (!bp && !hr && !spo2 && !temp) {
                 alert("Please enter at least one vital sign.");
                 return;
@@ -1009,10 +1219,10 @@
 
             const resultDiv = document.getElementById('vitalsResult');
             const submitBtn = document.getElementById('submitVitalsToChatBtn');
-            
+
             let html = '<div class="space-y-3">';
             let summary = "I have logged the following vitals:\n";
-            
+
             // BP Analysis
             if (bp) {
                 const parts = bp.split('/');
@@ -1022,18 +1232,18 @@
                     let status = "Normal";
                     let color = "text-emerald-600";
                     let bg = "bg-emerald-50";
-                    
+
                     if (sys > 180 || dia > 120) { status = "Hypertensive Crisis"; color = "text-red-600 font-bold"; bg = "bg-red-50 border border-red-200"; }
                     else if (sys >= 140 || dia >= 90) { status = "High Blood Pressure (Stage 2)"; color = "text-orange-600"; bg = "bg-orange-50"; }
                     else if (sys >= 130 || dia >= 80) { status = "High Blood Pressure (Stage 1)"; color = "text-yellow-600"; bg = "bg-yellow-50"; }
                     else if (sys >= 120 && dia < 80) { status = "Elevated"; color = "text-yellow-600"; bg = "bg-yellow-50"; }
                     else if (sys < 90 || dia < 60) { status = "Low Blood Pressure"; color = "text-blue-600"; bg = "bg-blue-50"; }
-                    
+
                     html += `<div class="p-3 rounded-lg ${bg} ${color}"><strong>Blood Pressure:</strong> ${bp} mmHg - ${status}</div>`;
                     summary += `- Blood Pressure: ${bp} mmHg (${status})\n`;
                 }
             }
-            
+
             // HR Analysis
             if (hr) {
                 let status = "Normal";
@@ -1041,11 +1251,11 @@
                 let bg = "bg-emerald-50";
                 if (hr > 100) { status = "Tachycardia (High)"; color = "text-red-600"; bg = "bg-red-50"; }
                 else if (hr < 60) { status = "Bradycardia (Low)"; color = "text-blue-600"; bg = "bg-blue-50"; }
-                
+
                 html += `<div class="p-3 rounded-lg ${bg} ${color}"><strong>Heart Rate:</strong> ${hr} bpm - ${status}</div>`;
                 summary += `- Heart Rate: ${hr} bpm (${status})\n`;
             }
-            
+
             // SpO2 Analysis
             if (spo2) {
                 let status = "Normal";
@@ -1053,11 +1263,11 @@
                 let bg = "bg-emerald-50";
                 if (spo2 < 90) { status = "Severe Hypoxemia (Critical)"; color = "text-red-600 font-bold"; bg = "bg-red-50 border border-red-200"; }
                 else if (spo2 < 95) { status = "Mild Hypoxemia (Low)"; color = "text-orange-600"; bg = "bg-orange-50"; }
-                
+
                 html += `<div class="p-3 rounded-lg ${bg} ${color}"><strong>SpO2:</strong> ${spo2}% - ${status}</div>`;
                 summary += `- SpO2: ${spo2}% (${status})\n`;
             }
-            
+
             // Temp Analysis
             if (temp) {
                 let status = "Normal";
@@ -1066,14 +1276,14 @@
                 if (temp > 103) { status = "High Fever (Critical)"; color = "text-red-600 font-bold"; bg = "bg-red-50 border border-red-200"; }
                 else if (temp > 100.4) { status = "Fever"; color = "text-orange-600"; bg = "bg-orange-50"; }
                 else if (temp < 95) { status = "Hypothermia (Low)"; color = "text-blue-600 font-bold"; bg = "bg-blue-50"; }
-                
+
                 html += `<div class="p-3 rounded-lg ${bg} ${color}"><strong>Temperature:</strong> ${temp}°F - ${status}</div>`;
                 summary += `- Temperature: ${temp}°F (${status})\n`;
             }
-            
+
             html += '</div>';
             resultDiv.innerHTML = html;
-            
+
             currentVitalsSummary = summary + "\nPlease keep these vitals in mind for future analysis and recommendations.";
             submitBtn.classList.remove('hidden');
         }
@@ -1163,10 +1373,10 @@
             const data = firstAidData[emergencyKey];
             currentSlides = data.steps;
             currentSlideIdx = 0;
-            
+
             firstAidMenu.classList.add('hidden');
             firstAidSlideshow.classList.remove('hidden');
-            
+
             updateSlideUI();
             playSlideAudio(); // auto-play first slide
         }
@@ -1175,7 +1385,7 @@
             document.getElementById('slideCounter').innerText = `${currentSlideIdx + 1} / ${currentSlides.length}`;
             document.getElementById('slideTitle').innerText = `STEP ${currentSlideIdx + 1}`;
             document.getElementById('slideDesc').innerText = currentSlides[currentSlideIdx];
-            
+
             document.getElementById('prevSlideBtn').disabled = (currentSlideIdx === 0);
             document.getElementById('nextSlideBtn').innerText = (currentSlideIdx === currentSlides.length - 1) ? 'Finish' : 'Next Step';
         }
@@ -1203,13 +1413,13 @@
         function playSlideAudio() {
             if (typeof synth === 'undefined') return;
             if (synth.speaking) synth.cancel();
-            
+
             const text = currentSlides[currentSlideIdx];
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 1.0;
             const bestVoice = getBestVoice(text);
             if (bestVoice) utterance.voice = bestVoice;
-            
+
             synth.speak(utterance);
         }
 
@@ -1220,4 +1430,5 @@
         }
     </script>
 </body>
+
 </html>
