@@ -30,10 +30,20 @@ def build_vector_database():
         # Convert text to a 384-dimensional vector array
         embedding = model.encode(text_to_embed).tolist()
 
-        # Store the vector alongside the original metadata
+        # ChromaDB requires all metadata values to be str, int, float, or bool.
+        sanitized_doc = {}
+        for k, v in doc.items():
+            if isinstance(v, list):
+                sanitized_doc[k] = ", ".join(str(item) for item in v)
+            elif isinstance(v, dict):
+                sanitized_doc[k] = str(v)
+            else:
+                sanitized_doc[k] = v
+
+        # Store the vector alongside the sanitized metadata
         collection.add(
             embeddings=[embedding],
-            metadatas=[doc],
+            metadatas=[sanitized_doc],
             ids=[doc.get("id", f"doc_{i}")]
         )
         print(f"   -> Embedded: {doc['condition']}")
