@@ -6,7 +6,7 @@ pydantic-settings==2.3.4
 
 # IBM Cloud Services
 ibm-watsonx-ai>=1.1.23
-ibmcloudant==0.9.1
+ibmcloudant>=0.9.1
 ibm-cloud-sdk-core>=3.20.0
 
 # True RAG & Vector Database
