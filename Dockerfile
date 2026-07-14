@@ -20,8 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Run the seeding script to pre-download HuggingFace models and build ChromaDB during Docker build
+# This saves ~1 minute of startup time and prevents timeout crashes on Render!
+RUN python scripts/seed_vector_db.py
+
 # Expose port 7860 for the FastAPI server (HuggingFace default)
 EXPOSE 7860
 
 # Command to run the Uvicorn server when the container launches
-CMD ["sh", "-c", "python scripts/seed_vector_db.py && uvicorn app.main:app --host 0.0.0.0 --port 7860"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
